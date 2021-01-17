@@ -1,0 +1,11 @@
+blessings==1.7
+click==7.1.2
+colorama==0.4.4
+configparser==5.0.1
+curtsies==0.3.4
+docutils==0.16
+enquiries==0.1.0
+lockfile==0.12.2
+pkg-resources==0.0.0
+six==1.15.0
+wcwidth==0.2.5

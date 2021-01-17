@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-import click, enquiries, os
-from subprocess import PIPE, run
+import click, enquiries, os, time
 import configparser
+from subprocess import PIPE, run
 
 config = configparser.ConfigParser()
 config.read('config.cnf')
@@ -46,9 +46,32 @@ def shutdown():
     else:
         click.echo('All server are offline')
 
+@click.command()
+def create():
+
+    command = [
+                'sudo', '/usr/bin/xen-create-image',
+                '--hostname=' + config['template']['hostname'],
+                '--size=' + config['template']['size'],
+                '--memory=' + config['template']['memory'],
+                '--swap=' + config['template']['swap'],
+                '--lvm=' + config['template']['lvm'],
+                '--ip=' + config['template']['ip'],
+                '--netmask=' + config['template']['netmask'],
+                '--gateway=' + config['template']['gateway'],
+                '--arch=' + config['template']['arch'],
+                '--install-method=' + config['template']['install-method'],
+                '--dist=' + config['template']['dist'],
+    ]
+
+    result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
+    click.echo(result.stdout)
+
 cli.add_command(list)
 cli.add_command(start)
 cli.add_command(shutdown)
+cli.add_command(create)
 
 if __name__ == '__main__':
     cli()
