@@ -4,7 +4,7 @@ import configparser
 from subprocess import PIPE, run
 
 config = configparser.ConfigParser()
-config.read('config.cnf')
+config.read('./conf/config.cnf')
 xen_dir = os.listdir(config['xen']['path'])
 xen_cfg = [x for x in xen_dir if x.endswith(".cfg")]
 
