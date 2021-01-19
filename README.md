@@ -16,7 +16,9 @@ Interactive xen tool to manage xen hypervisor
  source venv/bin/activate
  pip install -r requirement.txt
  mkdir conf
- # set config base on your server configuration
+ 
+ # set virtual server config base on your setting
+ # currently only support 1 server at a time
  mv config.conf.example ./conf/config.conf
  # run application
 ./xl
