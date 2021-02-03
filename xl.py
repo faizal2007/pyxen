@@ -62,6 +62,7 @@ def create():
                 '--arch=' + config['template']['arch'],
                 '--install-method=' + config['template']['install-method'],
                 '--dist=' + config['template']['dist'],
+                '--pygrub'
     ]
 
     result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
