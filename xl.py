@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 import click, enquiries, os, time
 import configparser
+from shutil import copyfile
+from pathlib import Path
 from subprocess import PIPE, run
 
 config = configparser.ConfigParser()
+config_path = Path('./conf/config.cnf')
+
+if not config_path.is_file():
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    copyfile('./config.cnf.example', config_path)
+
 config.read('./conf/config.cnf')
+
 xen_dir = os.listdir(config['xen']['path'])
 xen_cfg = [x for x in xen_dir if x.endswith(".cfg")]
 
