@@ -26,6 +26,9 @@ Interactive xen tool to manage xen hypervisor
 ## Systemd auto load vm
 ```bash
 nano /etc/systemd/system/xen-autostart.service
+```
+```bash
+
 [Unit]
 Description=starts all XEN vms in /etc/pyxen/autoload.list
 After=xendomains.service
@@ -38,4 +41,9 @@ ExecStart=/usr/local/bin/pyxl autoload
 
 [Install]
 WantedBy=default.target
+```
+> restart service
+```bash
+systemctl daemon-reload
+systemctl enable xen-autostart
 ```
