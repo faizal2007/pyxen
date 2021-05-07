@@ -1,6 +1,9 @@
 [xen]
 path = /etc/xen
 
+[app]
+path = /home/freakie/pyxen
+
 [template]
 hostname=test.server 
 size=10Gb 

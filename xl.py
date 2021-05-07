@@ -9,14 +9,13 @@ config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
 
-if not config_path.is_file():
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    copyfile('./config.cnf.example', config_path)
-
 if Path('/etc/pyxen/config.cnf').is_file():
     config.read('/etc/pyxen/config.cnf')
 else:
-    config.read('./conf/config.cnf')
+    if not config_path.is_file():
+        print('Config file missing.\n do check /etc/pyxen/config.cnf or ./conf/config.cnf')
+    else:
+        config.read('./conf/config.cnf')
 
 xen_dir = os.listdir(config['xen']['path'])
 xen_cfg = [x for x in xen_dir if x.endswith(".cfg")]
@@ -44,7 +43,7 @@ def start():
 
 @click.command()
 def shutdown():
-    command = ['sudo', '/bin/bash', './bin/getServer.sh']
+    command = ['sudo', '/bin/bash', config['app']['path'] + '/bin/getServer.sh']
     result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     server = []
     for line in result.stdout.splitlines():
