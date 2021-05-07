@@ -23,3 +23,19 @@ Interactive xen tool to manage xen hypervisor
  # run application
 ./xl
 ```
+## Systemd auto load vm
+```bash
+nano /etc/systemd/system/xen-autostart.service
+[Unit]
+Description=starts all XEN vms in /etc/pyxen/autoload.list
+After=xendomains.service
+Wants=xendomains.service
+
+[Service]
+User=root
+Group=root
+ExecStart=/usr/local/bin/pyxl autoload
+
+[Install]
+WantedBy=default.target
+```
