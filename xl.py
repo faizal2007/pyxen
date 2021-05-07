@@ -7,12 +7,16 @@ from subprocess import PIPE, run
 
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
+autoload_list = '/etc/pyxen/autoload.list'
 
 if not config_path.is_file():
     config_path.parent.mkdir(parents=True, exist_ok=True)
     copyfile('./config.cnf.example', config_path)
 
-config.read('./conf/config.cnf')
+if Path('/etc/pyxen/config.cnf').is_file():
+    config.read('/etc/pyxen/config.cnf')
+else:
+    config.read('./conf/config.cnf')
 
 xen_dir = os.listdir(config['xen']['path'])
 xen_cfg = [x for x in xen_dir if x.endswith(".cfg")]
@@ -78,10 +82,24 @@ def create():
 
     click.echo(result.stdout)
 
+@click.command()
+def autoload():
+    file = open(autoload_list)
+    autoxen_cfg = file.read().strip()
+    autoxen_list = autoxen_cfg.split('\n')
+
+    for cfg in autoxen_list:
+        command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + cfg]
+        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        click.echo(result.stderr)
+
+
+
 cli.add_command(list)
 cli.add_command(start)
 cli.add_command(shutdown)
 cli.add_command(create)
+cli.add_command(autoload)
 
 if __name__ == '__main__':
     cli()
