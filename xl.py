@@ -4,8 +4,9 @@ import configparser
 from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
+from lib.pyxen import getOffline, getOnline
 
-ver = '0.1'
+ver = '0.1.1'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
@@ -37,28 +38,35 @@ def list():
 
 @click.command()
 def start():
-    click.echo(click.style('List available config.', bg='blue'))
-    choice = enquiries.choose('Choose one of these options: ', xen_cfg)
-    command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + choice]
-    result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    click.echo(result.stderr)
+    server = getOffline(config['app'], xen_cfg)
+    if len(server) > 0:
+        click.echo(click.style('List available config.', bg='blue'))
+        choice = enquiries.choose('Choose one of these options: ', server)
+        command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + choice]
+        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        click.echo(result.stderr)
+    else:
+        click.echo(click.style("All Server appeared to be online.", bg='green'))
 
 @click.command()
 def shutdown():
-    command = ['sudo', '/bin/bash', config['app']['path'] + '/bin/getServer.sh']
-    result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    server = []
-    for line in result.stdout.splitlines():
-        server.append(line)
+    '''
+    getOnline(param1, param2, param3)
+    param1 = app setting
+    param2 = list xen cfg files 
+    param3 = file extension (.cfg)
+    '''
+    server = getOnline(config['app'], xen_cfg, 1)
 
     if len(server) > 0:
         choice = enquiries.choose('Choose one of these options: ', server)
         click.confirm('Do you want to continue?', abort=True)
+
         command = ['sudo', '/usr/sbin/xl', 'shutdown', choice]
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         click.echo(result.stderr)
     else:
-        click.echo('All server are offline')
+        click.echo('All Server appeared to be offline.')
 
 @click.command()
 def create():
@@ -88,12 +96,8 @@ def autoload():
     file = open(autoload_list)
     autoxen_cfg = file.read().strip()
     autoxen_list = autoxen_cfg.split('\n')
-    command = ['sudo', '/bin/bash', config['app']['path'] + '/bin/getServer.sh']
-    result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    server = []
-    for line in result.stdout.splitlines():
-        server.append(line + '.cfg')
 
+    server = getOnline(config['app'], xen_cfg)
     offline = []
     for cfg in autoxen_list:
         if cfg not in server:
