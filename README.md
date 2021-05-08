@@ -3,8 +3,8 @@ Interactive xen tool to manage xen hypervisor
 
 ## Requirement
 * Debian Buster (Tested)
-* xen-hypervisor
-* xen-tools
+* [xen-hypervisor](https://vidigest.com/2020/11/17/installing-xen-project-hypervisor-on-debian-10/)
+* [xen-tools](https://vidigest.com/2020/11/17/installing-xen-project-hypervisor-on-debian-10/#S3)
 
 
 ## Usage
