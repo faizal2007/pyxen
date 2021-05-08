@@ -5,6 +5,7 @@ from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
 
+ver = '0.1'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
@@ -23,6 +24,7 @@ xen_cfg = [x for x in xen_dir if x.endswith(".cfg")]
 click.clear()
 
 @click.group()
+@click.version_option(ver)
 def cli():
     pass
 
@@ -86,13 +88,22 @@ def autoload():
     file = open(autoload_list)
     autoxen_cfg = file.read().strip()
     autoxen_list = autoxen_cfg.split('\n')
+    command = ['sudo', '/bin/bash', config['app']['path'] + '/bin/getServer.sh']
+    result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    server = []
+    for line in result.stdout.splitlines():
+        server.append(line + '.cfg')
 
+    offline = []
     for cfg in autoxen_list:
+        if cfg not in server:
+            offline.append(cfg)
+
+    for cfg in offline:
         command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + cfg]
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        click.echo(result.stderr)
-
-
+        time.sleep(int(config['app']['autoload_delay']))
+        click.echo(result)
 
 cli.add_command(list)
 cli.add_command(start)

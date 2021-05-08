@@ -1,4 +1,3 @@
-/conf/*
 /venv/*
 __pycache__/
 build/
