@@ -50,14 +50,8 @@ def start():
 
 @click.command()
 def shutdown():
-    '''
-    getOnline(param1, param2, param3)
-    param1 = app setting
-    param2 = list xen cfg files 
-    param3 = file extension (.cfg)
-    '''
     server = getOnline(config['app'], xen_cfg, 1)
-
+    # 1 = no extention (.cfg)
     if len(server) > 0:
         choice = enquiries.choose('Choose one of these options: ', server)
         click.confirm('Do you want to continue?', abort=True)
