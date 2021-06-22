@@ -1,0 +1,1 @@
+@reboot /bin/sleep 15; /usr/lib/xen-4.11/bin/xenconsoled --pid-file=/var/run/xenconsoled.pid
