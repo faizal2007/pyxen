@@ -6,7 +6,7 @@ from pathlib import Path
 from subprocess import PIPE, run
 from lib.pyxen import getOffline, getOnline
 
-ver = '0.1.1'
+ver = '0.1.2'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
@@ -96,11 +96,12 @@ def autoload():
     for cfg in autoxen_list:
         if cfg not in server:
             offline.append(cfg)
+    ## delay startup
+    time.sleep(int(config['app']['autoload_delay']))
 
     for cfg in offline:
         command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + cfg]
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        time.sleep(int(config['app']['autoload_delay']))
         click.echo(result)
 
 cli.add_command(list)
