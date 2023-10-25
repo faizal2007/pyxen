@@ -6,7 +6,7 @@ from pathlib import Path
 from subprocess import PIPE, run
 from lib.pyxen import getOffline, getOnline
 
-ver = '0.1.2'
+ver = '0.1.3'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
