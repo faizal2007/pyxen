@@ -110,11 +110,12 @@ def autoload():
     for cfg in autoxen_list:
         if cfg not in server:
             offline.append(cfg)
+    ## delay startup
+    time.sleep(int(config['app']['autoload_delay']))
 
     for cfg in offline:
         command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + cfg]
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        time.sleep(int(config['app']['autoload_delay']))
         click.echo(result)
 
     
