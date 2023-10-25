@@ -6,7 +6,7 @@ from pathlib import Path
 from subprocess import PIPE, run
 from lib.pyxen import getOffline, getOnline
 
-ver = '0.1.1'
+ver = '0.1.2'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
@@ -22,7 +22,7 @@ else:
 xen_dir = os.listdir(config['xen']['path'])
 xen_cfg = [x for x in xen_dir if x.endswith(".cfg")]
 
-click.clear()
+#click.clear()
 
 @click.group()
 @click.version_option(ver)
@@ -57,6 +57,20 @@ def shutdown():
         click.confirm('Do you want to continue?', abort=True)
 
         command = ['sudo', '/usr/sbin/xl', 'shutdown', choice]
+        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        click.echo(result.stderr)
+    else:
+        click.echo('All Server appeared to be offline.')
+
+@click.command()
+def destroy():
+    server = getOnline(config['app'], xen_cfg, 1)
+    # 1 = no extention (.cfg)
+    if len(server) > 0:
+        choice = enquiries.choose('Choose one of these options: ', server)
+        click.confirm('Do you want to continue?', abort=True)
+
+        command = ['sudo', '/usr/sbin/xl', 'destroy', choice]
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         click.echo(result.stderr)
     else:
@@ -103,9 +117,11 @@ def autoload():
         time.sleep(int(config['app']['autoload_delay']))
         click.echo(result)
 
+    
 cli.add_command(list)
 cli.add_command(start)
 cli.add_command(shutdown)
+cli.add_command(destroy)
 cli.add_command(create)
 cli.add_command(autoload)
 
