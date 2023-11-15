@@ -1,0 +1,13 @@
+altgraph==0.17.4
+blessings==1.7
+click==7.1.2
+configparser==6.0.0
+curtsies==0.3.10
+cwcwidth==0.1.9
+enquiries==0.2.0
+packaging==23.2
+pip==23.3.1
+pyinstaller==6.1.0
+pyinstaller-hooks-contrib==2023.10
+setuptools==66.1.1
+six==1.16.0

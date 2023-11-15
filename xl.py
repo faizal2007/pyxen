@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import click, enquiries, os, time
 import configparser
+import signal, sys
 from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
@@ -92,6 +93,9 @@ def create():
                 '--arch=' + config['template']['arch'],
                 '--install-method=' + config['template']['install-method'],
                 '--dist=' + config['template']['dist'],
+
+                '--roledir=/etc/xen-tools/role.d/',
+                '--password=test',
                 '--pygrub'
     ]
 
@@ -127,5 +131,7 @@ cli.add_command(create)
 cli.add_command(autoload)
 
 if __name__ == '__main__':
+    # Register a signal handler for Ctrl+C (SIGINT)
+    signal.signal(signal.SIGINT, lambda signum, frame: sys.exit(0))
     cli()
 
