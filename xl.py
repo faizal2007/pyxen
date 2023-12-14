@@ -39,7 +39,7 @@ def list():
 
 @click.command()
 def start():
-    server = getOffline(config['app'], xen_cfg)
+    server = getOffline(xen_cfg)
     if len(server) > 0:
         click.echo(click.style('List available config.', bg='blue'))
         choice = enquiries.choose('Choose one of these options: ', server)

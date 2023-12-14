@@ -5,3 +5,4 @@ build/
 nohup.out
 test.py
 xl.spec
+conf/config.cnf
