@@ -109,18 +109,24 @@ def autoload():
     autoxen_cfg = file.read().strip()
     autoxen_list = autoxen_cfg.split('\n')
 
-    server = getOnline(config['app'], xen_cfg)
-    offline = []
-    for cfg in autoxen_list:
-        if cfg not in server:
-            offline.append(cfg)
-    ## delay startup
-    time.sleep(int(config['app']['autoload_delay']))
+    offline_server = getOffline(xen_cfg)
 
-    for cfg in offline:
+    for cfg in offline_server:
         command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + cfg]
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         click.echo(result)
+
+    # offline = []
+    # for cfg in autoxen_list:
+        # if cfg not in server:
+            # offline.append(cfg)
+    # ## delay startup
+    # time.sleep(int(config['app']['autoload_delay']))
+# 
+    # for cfg in offline:
+        # command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + cfg]
+        # result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        # click.echo(result)
 
     
 cli.add_command(list)
