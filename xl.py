@@ -51,8 +51,8 @@ def start():
 
 @click.command()
 def shutdown():
-    server = getOnline(config['app'], xen_cfg, 1)
-    # 1 = no extention (.cfg)
+    server = getOnline('name')
+
     if len(server) > 0:
         choice = enquiries.choose('Choose one of these options: ', server)
         click.confirm('Do you want to continue?', abort=True)
@@ -65,8 +65,8 @@ def shutdown():
 
 @click.command()
 def destroy():
-    server = getOnline(config['app'], xen_cfg, 1)
-    # 1 = no extention (.cfg)
+    server = getOnline('name')
+    
     if len(server) > 0:
         choice = enquiries.choose('Choose one of these options: ', server)
         click.confirm('Do you want to continue?', abort=True)
@@ -116,19 +116,6 @@ def autoload():
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         click.echo(result)
 
-    # offline = []
-    # for cfg in autoxen_list:
-        # if cfg not in server:
-            # offline.append(cfg)
-    # ## delay startup
-    # time.sleep(int(config['app']['autoload_delay']))
-# 
-    # for cfg in offline:
-        # command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + cfg]
-        # result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        # click.echo(result)
-
-    
 cli.add_command(list)
 cli.add_command(start)
 cli.add_command(shutdown)
