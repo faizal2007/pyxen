@@ -1,0 +1,19 @@
+[xen]
+path = /etc/xen
+
+[app]
+path = /home/freakie/pyxen
+autoload_delay = 10
+
+[template]
+hostname=db-sandbox
+size=10Gb
+memory=1024Mb
+swap=4Gb
+lvm=geekha
+ip=192.168.1.48
+netmask=255.255.255.0
+gateway=192.168.1.1
+arch=amd64
+install-method=debootstrap
+dist=buster
