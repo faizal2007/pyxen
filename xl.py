@@ -13,7 +13,7 @@ from rich.text import Text
 from rich.prompt import Confirm
 import re
 
-ver = '0.1.5'
+ver = '0.1.6'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
