@@ -6,8 +6,13 @@ from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
 from lib.pyxen import getOffline, getOnline
+from rich.console import Console
+from rich.table import Table
+from rich import box
+from rich.text import Text
+from rich.prompt import Confirm
 
-ver = '0.1.3'
+ver = '0.1.5'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
@@ -32,10 +37,19 @@ def cli():
 
 @click.command()
 def list():
-    click.echo(click.style('List Online Server.', bg='blue'))
-    command = ['sudo', '/usr/sbin/xl', 'list']
-    result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    click.echo(result.stdout)
+    # click.echo(click.style('List Online Server.', bg='blue'))
+    table = Table(title=Text("List Online Server", style='bold white on blue'), box=box.ASCII, style='blue')
+    table.add_column("Name", justify="right", style="cyan", no_wrap=True)
+    table.add_column("ID", style="magenta")
+    table.add_column("CPU", justify="right", style="green")
+    table.add_column("Memory", justify="right", style="green")
+    table.add_column("IP", justify="right", style="green")
+
+    for server in getOnline():
+        table.add_row(*(server['name'], str(server['domid']), str(server['cpus']), str(server['memory']), str(server['ip'])))
+    
+    console = Console()
+    console.print(table)
 
 @click.command()
 def start():
@@ -55,11 +69,13 @@ def shutdown():
 
     if len(server) > 0:
         choice = enquiries.choose('Choose one of these options: ', server)
-        click.confirm('Do you want to continue?', abort=True)
-
-        command = ['sudo', '/usr/sbin/xl', 'shutdown', choice]
-        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        click.echo(result.stderr)
+        confirmation = Confirm.ask('Do you want to continue?')
+        if confirmation:
+            command = ['sudo', '/usr/sbin/xl', 'shutdown', choice]
+            result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+            click.echo(result.stderr)
+        else:
+            click.echo('User cancel')
     else:
         click.echo('All Server appeared to be offline.')
 
@@ -69,11 +85,14 @@ def destroy():
     
     if len(server) > 0:
         choice = enquiries.choose('Choose one of these options: ', server)
-        click.confirm('Do you want to continue?', abort=True)
-
-        command = ['sudo', '/usr/sbin/xl', 'destroy', choice]
-        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        click.echo(result.stderr)
+        # click.confirm('Do you want to continue?', abort=True)
+        confirmation = Confirm.ask('Do you want to continue?')
+        if confirmation:
+            command = ['sudo', '/usr/sbin/xl', 'destroy', choice]
+            result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+            click.echo(result.stderr)
+        else:
+            click.echo('User cancel')
     else:
         click.echo('All Server appeared to be offline.')
 
@@ -114,7 +133,7 @@ def autoload():
     for cfg in offline_server:
         command = ['sudo', '/usr/sbin/xl', 'create', config['xen']['path'] + '/' + cfg]
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        click.echo(result)
+        # click.echo(result)
 
 cli.add_command(list)
 cli.add_command(start)
