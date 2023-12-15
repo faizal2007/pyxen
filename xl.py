@@ -51,7 +51,7 @@ def list():
     table.add_column("ID", style="magenta")
     table.add_column("CPU", justify="right", style="green")
     table.add_column("Memory", justify="right", style="green")
-    table.add_column("IP", justify="right", style="green")
+    table.add_column("IP Address", justify="right", style="green")
 
     cpu = 0
     for server in getOnline():
