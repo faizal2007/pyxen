@@ -5,7 +5,7 @@ import signal, sys
 from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
-from lib.pyxen import getOffline, getOnline, xen_info, vg_display
+from lib.pyxen import getOffline, getOnline, xen_info, vg_display, convert_ram
 from rich.console import Console
 from rich.table import Table
 from rich import box
@@ -13,7 +13,7 @@ from rich.text import Text
 from rich.prompt import Confirm
 import re
 
-ver = '0.1.6'
+ver = '0.1.7'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
@@ -42,8 +42,10 @@ def list():
     total_cpus = xen_info().get('nr_cpus')
     total_memory = xen_info().get('total_memory')
     free_memory =  xen_info().get('free_memory')
-    total_storage = vg_display().get('Alloc').strip().split('/')
-    free_storage = vg_display().get('Free').strip().split('/')
+    use_memory = int(total_memory) - int(free_memory)
+    total_storage = vg_display().get('VG Size')
+    use_storage = str(vg_display().get('Alloc PE').split('/')[2]).strip()
+    free_storage = str(vg_display().get('Free PE').split('/')[2]).strip()
     table = Table(title=Text("List Online Server", style='bold white on blue'), box=box.ASCII, style='blue')
     table.add_column("Name", justify="right", style="cyan", no_wrap=True)
     table.add_column("ID", style="magenta")
@@ -61,11 +63,11 @@ def list():
     table = Table(title=Text("Server Summary", style='bold white on blue'), box=box.ASCII, style='blue')
     table.add_column('Item', style='cyan')
     table.add_column('Total')
+    table.add_column('Use')
     table.add_column('Free')
-    table.add_row('CPU', total_cpus, str(int(total_cpus)-cpu))
-    table.add_row('Memory', total_memory, free_memory)
-    table.add_row('Storage', total_storage[2].strip(), free_storage[2].strip())
-
+    table.add_row('VCPUs', total_cpus, str(cpu), str(int(total_cpus)-cpu))
+    table.add_row('Memory', convert_ram(total_memory), convert_ram(use_memory), convert_ram(free_memory))
+    table.add_row('Storage', total_storage, use_storage,free_storage)
     console.print(table)
     
 @click.command()

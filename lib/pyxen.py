@@ -60,13 +60,22 @@ def vg_display():
         # Split the output into lines and create a dictionary from it
         info_dict = {}
         for line in command_output.stdout.splitlines():
-            if line.strip():
-                key, value = line.split(maxsplit=1)
-                if key != '---':      
-                     info_dict[key.strip()] = value.strip()
-                     
-
+            if line.strip().startswith(('VG Name', 'Format', 'Metadata', 'MAX', 'Cur', 'Open', 'Max', 'Cur', 'Act', 'PE', 'Total', 'Alloc', 'Free', 'VG Size', 'VG UUID')):       
+                parts = line.split()
+                key = parts[0] + ' ' + parts[1] if len(parts) > 2 else parts[0]
+                value = ' '.join(parts[2:])
+                info_dict[key] = value
         return info_dict
     else:
         print("Error: Unable to fetch xl info")
 
+def convert_ram(value_in_bytes):
+    units = ['MB', 'GB', 'TB']
+    index = 0
+    bytes_value = float(value_in_bytes)
+
+    while bytes_value >= 1024 and index < len(units) - 1:
+        bytes_value /= 1024
+        index += 1
+
+    return f"{bytes_value:.2f} {units[index]}"
