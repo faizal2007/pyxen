@@ -5,12 +5,13 @@ import signal, sys
 from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
-from lib.pyxen import getOffline, getOnline, xen_info
+from lib.pyxen import getOffline, getOnline, xen_info, vg_display
 from rich.console import Console
 from rich.table import Table
 from rich import box
 from rich.text import Text
 from rich.prompt import Confirm
+import re
 
 ver = '0.1.5'
 config = configparser.ConfigParser()
@@ -37,12 +38,12 @@ def cli():
 
 @click.command()
 def list():
-    # 'total_memory': '24484', 'free_memory': '10829'
-    # print(xen_info().get('total_memory'))
+    
     total_cpus = xen_info().get('nr_cpus')
     total_memory = xen_info().get('total_memory')
     free_memory =  xen_info().get('free_memory')
-    
+    total_storage = vg_display().get('Alloc').strip().split('/')
+    free_storage = vg_display().get('Free').strip().split('/')
     table = Table(title=Text("List Online Server", style='bold white on blue'), box=box.ASCII, style='blue')
     table.add_column("Name", justify="right", style="cyan", no_wrap=True)
     table.add_column("ID", style="magenta")
@@ -51,7 +52,6 @@ def list():
     table.add_column("IP", justify="right", style="green")
 
     cpu = 0
-
     for server in getOnline():
         table.add_row(*(server['name'], str(server['domid']), str(server['cpus']), str(int(server['memory'])), str(server['ip'])))
         cpu += int(server['cpus'])
@@ -64,6 +64,7 @@ def list():
     table.add_column('Free')
     table.add_row('CPU', total_cpus, str(int(total_cpus)-cpu))
     table.add_row('Memory', total_memory, free_memory)
+    table.add_row('Storage', total_storage[2].strip(), free_storage[2].strip())
 
     console.print(table)
     
