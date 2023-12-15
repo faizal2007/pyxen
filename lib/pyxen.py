@@ -36,3 +36,20 @@ def getOffline(xen_cfg):
             server.append(cfg)
 
     return server
+
+def xen_info():
+
+    # Run the `xl info` command
+    command_output = run(['xl', 'info'], capture_output=True, text=True)
+
+    # Check if the command executed successfully
+    if command_output.returncode == 0:
+        # Split the output into lines and create a dictionary from it
+        info_dict = {}
+        for line in command_output.stdout.splitlines():
+            key, value = line.split(':', 1)
+            info_dict[key.strip()] = value.strip()
+
+        return info_dict
+    else:
+        print("Error: Unable to fetch xl info")
