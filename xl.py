@@ -12,9 +12,10 @@ from rich.table import Table
 from rich import box
 from rich.text import Text
 from rich.prompt import Confirm
+from rich.prompt import Prompt
 import re
 
-ver = '0.1.7'
+ver = '0.1.8'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
@@ -120,7 +121,7 @@ def destroy():
 
 @click.command()
 def create():
-
+    
     command = [
                 'sudo', '/usr/bin/xen-create-image',
                 '--hostname=' + config['template']['hostname'],
@@ -140,7 +141,7 @@ def create():
 
     result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
-    click.echo(result.stderr)
+    click.echo(result.stdout)
 
 @click.command()
 def autoload():
@@ -155,12 +156,35 @@ def autoload():
         result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         # click.echo(result)
 
+@click.command()
+def delete():
+    offline_server = getOffline(xen_cfg)
+    
+
+    if len(offline_server) < 1:
+        click.echo(click.style("No Server Found.", bg='cyan'))
+        sys.exit(1)
+        
+    choice = enquiries.choose('Choose one of these options: ', offline_server)
+    confirmation = Confirm.ask('Do you want to continue?')
+
+    if confirmation:
+        click.echo('VG Name : ' + vg_display().get('VG Name'))
+        vg_group = Prompt.ask('Enter VG Name')
+        vm_name = os.path.splitext(choice)[0]
+        command = ['sudo', '/usr/bin/xen-delete-image', '--lvm', vg_group, vm_name]
+        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        click.echo(result.stdout)
+    else:
+        click.echo('User cancel')
+
 cli.add_command(list)
 cli.add_command(start)
 cli.add_command(shutdown)
 cli.add_command(destroy)
 cli.add_command(create)
 cli.add_command(autoload)
+cli.add_command(delete)
 
 if __name__ == '__main__':
     # Register a signal handler for Ctrl+C (SIGINT)
