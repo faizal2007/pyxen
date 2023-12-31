@@ -6,3 +6,4 @@ nohup.out
 test.py
 xl.spec
 conf/config.cnf
+wget-log*

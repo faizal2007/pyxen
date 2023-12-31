@@ -5,7 +5,8 @@ import signal, sys
 from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
-from lib.pyxen import getOffline, getOnline, xen_info, vg_display, convert_ram
+from lib.pyxen import getOffline, getOnline, xen_info, vg_display
+from lib.util import generate_password, convert_ram
 from rich.console import Console
 from rich.table import Table
 from rich import box
@@ -23,11 +24,13 @@ if Path('/etc/pyxen/config.cnf').is_file():
 else:
     if not config_path.is_file():
         print('Config file missing.\n do check /etc/pyxen/config.cnf or ./conf/config.cnf')
+        sys.exit(1) 
     else:
         config.read('./conf/config.cnf')
 
-xen_dir = os.listdir(config['xen']['path'])
-xen_cfg = [x for x in xen_dir if x.endswith(".cfg")]
+if 'xen' in config:
+    xen_dir = os.listdir(config['xen']['path'])
+    xen_cfg = [x for x in xen_dir if x.endswith(".cfg")]
 
 #click.clear()
 
@@ -131,15 +134,13 @@ def create():
                 '--arch=' + config['template']['arch'],
                 '--install-method=' + config['template']['install-method'],
                 '--dist=' + config['template']['dist'],
-
-                '--roledir=/etc/xen-tools/role.d/',
-                '--password=test',
+                '--password='+ generate_password(),
                 '--pygrub'
     ]
 
     result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
-    click.echo(result.stdout)
+    click.echo(result.stderr)
 
 @click.command()
 def autoload():

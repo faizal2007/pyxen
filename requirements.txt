@@ -5,9 +5,13 @@ configparser==6.0.0
 curtsies==0.3.10
 cwcwidth==0.1.9
 enquiries==0.2.0
+markdown-it-py==3.0.0
+mdurl==0.1.2
 packaging==23.2
 pip==23.3.1
+Pygments==2.17.2
 pyinstaller==6.1.0
 pyinstaller-hooks-contrib==2023.10
+rich==13.7.0
 setuptools==66.1.1
 six==1.16.0

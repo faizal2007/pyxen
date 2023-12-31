@@ -69,13 +69,3 @@ def vg_display():
     else:
         print("Error: Unable to fetch xl info")
 
-def convert_ram(value_in_bytes):
-    units = ['MB', 'GB', 'TB']
-    index = 0
-    bytes_value = float(value_in_bytes)
-
-    while bytes_value >= 1024 and index < len(units) - 1:
-        bytes_value /= 1024
-        index += 1
-
-    return f"{bytes_value:.2f} {units[index]}"
