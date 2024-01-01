@@ -5,7 +5,7 @@ import signal, sys
 from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
-from lib.pyxen import getOffline, getOnline, xen_info, vg_display
+from lib.pyxen import getOffline, getOnline, xen_info, vg_display, list_server_info
 from lib.util import generate_password, convert_ram
 from rich.console import Console
 from rich.table import Table
@@ -42,38 +42,7 @@ def cli():
 
 @click.command()
 def list():
-    
-    total_cpus = xen_info().get('nr_cpus')
-    total_memory = xen_info().get('total_memory')
-    free_memory =  xen_info().get('free_memory')
-    use_memory = int(total_memory) - int(free_memory)
-    total_storage = vg_display().get('VG Size')
-    use_storage = str(vg_display().get('Alloc PE').split('/')[2]).strip()
-    free_storage = str(vg_display().get('Free PE').split('/')[2]).strip()
-    table = Table(title=Text("List Online Server", style='bold white on blue'), box=box.ASCII, style='blue')
-    table.add_column("Name", justify="right", style="cyan", no_wrap=True)
-    table.add_column("ID", style="magenta")
-    table.add_column("CPU", justify="right", style="green")
-    table.add_column("Memory", justify="right", style="green")
-    table.add_column("IP Address", justify="right", style="green")
-
-    cpu = 0
-    for server in getOnline():
-        table.add_row(*(server['name'], str(server['domid']), str(server['cpus']), str(int(server['memory'])), str(server['ip'])))
-        cpu += int(server['cpus'])
-    console = Console()
-    console.print(table)
-
-    table = Table(title=Text("Server Summary", style='bold white on blue'), box=box.ASCII, style='blue')
-    table.add_column('Item', style='cyan')
-    table.add_column('Total')
-    table.add_column('Use')
-    table.add_column('Free')
-    table.add_row('VCPUs', total_cpus, str(cpu), str(int(total_cpus)-cpu))
-    table.add_row('Memory', convert_ram(total_memory), convert_ram(use_memory), convert_ram(free_memory))
-    table.add_row('Storage', total_storage, use_storage,free_storage)
-    console.print(table)
-    
+    list_server_info()
 @click.command()
 def start():
     server = getOffline(xen_cfg)
