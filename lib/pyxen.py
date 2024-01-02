@@ -108,3 +108,11 @@ def list_server_info():
     table.add_row('Storage', total_storage, use_storage,free_storage)
     console.print(table)
 
+def create_disk(size, vg_name, disk_name):
+    command_create = run(['lvcreate', '-L' + size, '-n', disk_name, vg_name], capture_output=True, text=True)
+    if command_create.returncode == 0:    
+        print(command_create.stdout)
+    else:
+        print('Error creating disk')
+        print(command_create.stderr)
+        
