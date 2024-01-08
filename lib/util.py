@@ -1,5 +1,6 @@
 import random
 import string
+import os, glob
 
 def generate_password(length=12):
     characters = string.ascii_letters + string.digits  # Only letters and digits
@@ -16,3 +17,15 @@ def convert_ram(value_in_bytes):
         index += 1
 
     return f"{bytes_value:.2f} {units[index]}"
+
+def log_cleanup(file_pattern):
+    logs = glob.glob(file_pattern)
+
+    # Loop through the matching files and delete them
+    for file_path in logs:
+        try:
+            os.remove(file_path)
+            print(f"Cleaning up : {file_path}")
+        except OSError as e:
+            print(f"Error cleaning up {file_path}: {e}")
+    

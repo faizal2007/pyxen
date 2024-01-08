@@ -6,7 +6,7 @@ from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
 from lib.pyxen import getOffline, getOnline, xen_info, vg_display, list_server_info, create_disk
-from lib.util import generate_password, convert_ram
+from lib.util import generate_password, convert_ram, log_cleanup
 from rich.console import Console
 from rich.table import Table
 from rich import box
@@ -101,7 +101,7 @@ def destroy():
 
 @click.command()
 def create():
-
+    
     types = [
         'debootstrap',
         'iso',
@@ -117,6 +117,7 @@ def create():
                     'sudo', '/usr/bin/xen-create-image',
                     '--hostname=' + config['template']['hostname'],
                     '--size=' + config['template']['size'],
+                    '--vcpus=' + config['template']['vcpus'], 
                     '--memory=' + config['template']['memory'],
                     '--swap=' + config['template']['swap'],
                     '--lvm=' + config['template']['lvm'],
@@ -132,9 +133,11 @@ def create():
                     '--pygrub'
         ]
 
-        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        result = run(command, stdout=PIPE, stderr=PIPE)
 
         click.echo(result.stdout)
+        log_cleanup('wget-log*')
+
     elif choice == 'iso':
         click.echo(click.style("Creating Server using iso.", bg='green'))
         hostname = Prompt.ask('Enter hostname')
@@ -142,6 +145,7 @@ def create():
         memory = Prompt.ask('Enter memory size in mb')
         swap = Prompt.ask('Enter swap size in mb')
         disk = Prompt.ask('Enter disk size in mb')
+        vg_name = Prompt.ask('Enter vg name')
         ip_address = Prompt.ask('Enter ip address')
         netmask = Prompt.ask('Enter netmask')
         gateway = Prompt.ask('Enter gateway')
