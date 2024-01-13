@@ -5,7 +5,7 @@ import signal, sys
 from shutil import copyfile
 from pathlib import Path
 from subprocess import PIPE, run
-from lib.pyxen import getOffline, getOnline, xen_info, vg_display, list_server_info, create_disk
+from lib.pyxen import getOffline, getOnline, xen_info, vg_display, list_server_info, create_disk, create_snapshot, xen_cfg_ls, get_config
 from lib.util import generate_password, convert_ram, log_cleanup
 from rich.console import Console
 from rich.table import Table
@@ -17,7 +17,7 @@ from rich import print
 from rich.panel import Panel
 import re
 
-ver = '0.1.9'
+ver = '0.1.10'
 config = configparser.ConfigParser()
 config_path = Path('./conf/config.cnf')
 autoload_list = '/etc/pyxen/autoload.list'
@@ -48,11 +48,18 @@ def list():
     
 @click.command()
 def list_images():
-    command = ['sudo', '/usr/bin/xen-list-images']
-    click.echo(click.style('List available images.', bg='blue'))
-    result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    # click.echo(result.stdout)
-    print(Panel.fit(result.stdout))
+    click.echo(click.style("List Xen Images.", bg='blue'))
+    for file in xen_cfg_ls():
+        print(
+            Panel.fit(
+                'Name : ' + get_config(file).get('name') + '\n'
+                'vCPUS : ' + get_config(file).get('vcpus') + '\n'
+                'Memory : ' + convert_ram(get_config(file).get('memory')) + '\n'
+                # 'Disk : ' + get_config(file).get('disk')[0] + '\n'
+                'VIF : ' + get_config(file).get('vif')[0] + '\n'
+                'Config : ' + file
+            )
+        )
 
 @click.command()
 def start():
@@ -158,6 +165,9 @@ def create():
         disk_name = Prompt.ask('Enter disk name')
 
         create_disk(disk_size, vg_name, disk_name)
+    elif choice == 'snapshot':
+        print('create snapshot')
+        create_snapshot()
     else:
         print('Option not available.')
 

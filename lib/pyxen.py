@@ -5,9 +5,9 @@ from rich import box
 from rich.text import Text
 from rich.prompt import Confirm
 from rich.prompt import Prompt
-from .util import convert_ram
+from .util import convert_ram, convert_to_short_form
 
-import json
+import json, re, sys, glob
 
 def getOnline(type = ''):
     command = ['sudo', '/usr/sbin/xl', 'list', '-l']
@@ -61,6 +61,27 @@ def xen_info():
         return info_dict
     else:
         print("Error: Unable to fetch xl info")
+        
+def xen_cfg_ls():
+    file_pattern = '/etc/xen/*.cfg'
+    configs = glob.glob(file_pattern)
+    cfg_ls = []
+    for file_path in configs:
+        try:
+            cfg_ls.append(file_path)
+        except:
+            print(f"Error listing {file_path}: {e}")
+    return cfg_ls
+
+def get_config(xen_cfg):
+    with open(xen_cfg, 'r') as config_file:
+        config_content = config_file.read()
+    # Parse Xen config into a dictionary
+    xen_config = {}
+    exec(config_content, {}, xen_config)
+
+    return xen_config
+    
 def vg_display():
     command_output = run(['/usr/sbin/vgdisplay'], capture_output=True, text=True)
     # Check if the command executed successfully
@@ -115,4 +136,42 @@ def create_disk(size, vg_name, disk_name):
     else:
         print('Error creating disk')
         print(command_create.stderr)
+
+def create_snapshot():
+    print(convert_to_short_form(lv_display()[2].get('LV Size')))
+
+def lv_display(lv_path=None):
+    command = [
+        '/usr/sbin/lvdisplay',
+    ]
+    
+    if(lv_path):
+        command.append(lv_path)
+    
+    command_output = run(command, capture_output=True, text=True)
+    if command_output.returncode == 0:
+        logical_volumes = re.split(r'--- Logical volume ---\n',  command_output.stdout.strip())
+        logical_volumes = [lv.strip() for lv in logical_volumes if lv.strip()]
         
+        return lv_data(logical_volumes)
+        
+    else:
+        print("Error: Unable to fetch lvdisplay")
+        sys.exit(0)
+    
+def lv_data(logical_volumes):
+    lv_lists = []    
+    for lv_entry in logical_volumes:
+        lv_dict = {}
+        lv_lines = lv_entry.split('\n')
+        for line in lv_lines:
+            if line.strip().startswith(('LV Path', 'LV Name', 'VG Name', 'LV Status', 'LV Size')):
+                parts = line.split()
+                key = parts[0] + ' ' + parts[1] if len(parts) > 2 else parts[0]
+                value = ' '.join(parts[2:])
+                lv_dict[key] = value
+        lv_lists.append(lv_dict)
+
+    return lv_lists    
+
+

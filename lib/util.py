@@ -29,3 +29,12 @@ def log_cleanup(file_pattern):
         except OSError as e:
             print(f"Error cleaning up {file_path}: {e}")
     
+def convert_to_short_form(size):
+    if size.endswith(" GiB"):
+        return size.replace(" GiB", "G")
+    elif size.endswith(" MiB"):
+        return size.replace(" MiB", "M")
+    elif size.endswith(" TiB"):
+        return size.replace(" TiB", "T")
+    else:
+        return size  # Return unchanged if not GiB, MiB, or TiB
